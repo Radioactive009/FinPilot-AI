@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime, date
 from typing import Optional, List
 from pydantic import BaseModel, ConfigDict, Field
+from app.schemas.invoice_item import InvoiceItemResponse
 
 
 class InvoiceBase(BaseModel):
@@ -40,5 +41,6 @@ class InvoiceResponse(InvoiceBase):
     document_id: uuid.UUID
     vendor_id: uuid.UUID
     created_at: datetime
+    items: List[InvoiceItemResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
