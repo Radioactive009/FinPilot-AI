@@ -55,7 +55,7 @@ def setup_db_and_storage():
     # Cleanup test storage files
     if TEST_STORAGE_DIR.exists():
         import shutil
-        shutil.rmtree(TEST_STORAGE_DIR)
+        shutil.rmtree(TEST_STORAGE_DIR, ignore_errors=True)
 
 
 client = TestClient(app)
