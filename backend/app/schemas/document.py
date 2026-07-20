@@ -1,22 +1,35 @@
+import uuid
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+from app.models.document import DocumentType
 
 
 class DocumentBase(BaseModel):
-    filename: str
-    doc_type: Optional[str] = None
+    file_name: str
+    original_file_name: str
+    file_type: str
+    document_type: DocumentType
+    file_path: str
+    upload_status: str = "pending"
 
 
 class DocumentCreate(DocumentBase):
-    file_path: str
+    user_id: uuid.UUID
+
+
+class DocumentUpdate(BaseModel):
+    file_name: Optional[str] = None
+    original_file_name: Optional[str] = None
+    file_type: Optional[str] = None
+    document_type: Optional[DocumentType] = None
+    file_path: Optional[str] = None
+    upload_status: Optional[str] = None
 
 
 class DocumentResponse(DocumentBase):
-    id: int
-    is_processed: bool
-    created_at: datetime
-    updated_at: Optional[datetime] = None
+    id: uuid.UUID
+    user_id: uuid.UUID
+    uploaded_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
