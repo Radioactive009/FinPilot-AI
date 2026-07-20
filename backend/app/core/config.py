@@ -95,7 +95,7 @@ class Settings(BaseSettings):
     LOGS_DIR: Optional[Path] = None
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", case_sensitive=True, extra="ignore"
+        env_file=str(BASE_DIR / ".env"), env_file_encoding="utf-8", case_sensitive=True, extra="ignore"
     )
 
     def __init__(self, **values: Any):
