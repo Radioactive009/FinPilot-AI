@@ -25,13 +25,16 @@ services:
       - "8000:8000"
     volumes:
       - ../backend:/app
+      - ../storage:/app/storage
     environment:
+      - SECRET_KEY=docker_secret_key_dev_change_in_production
       - POSTGRES_SERVER=db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=finance_ai_db
       - POSTGRES_PORT=5432
-      - FAISS_INDEX_PATH=/app/faiss_index
+      - STORAGE_DIR=/app/storage
+      - BACKEND_CORS_ORIGINS=http://localhost:3000
     depends_on:
       - db
 

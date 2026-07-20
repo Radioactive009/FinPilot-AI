@@ -1,13 +1,24 @@
 import logging
 import sys
+from pathlib import Path
 import structlog
+from app.core.config import settings
 
 
 def setup_logging():
+    # Enforce directory existence (already handled by config, but safe check)
+    log_dir = settings.LOGS_DIR or Path("storage/logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "app.log"
+
+    # Set up basic handlers
+    console_handler = logging.StreamHandler(sys.stdout)
+    file_handler = logging.FileHandler(str(log_file))
+
     logging.basicConfig(
         format="%(message)s",
-        stream=sys.stdout,
         level=logging.INFO,
+        handlers=[console_handler, file_handler]
     )
 
     structlog.configure(
