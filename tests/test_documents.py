@@ -21,6 +21,7 @@ from app.database.base import Base
 from app.database.session import get_db
 from app.core.config import settings
 from app.models.user import User, UserRole
+from app.core.security import get_password_hash
 
 # Create test database (SQLite in-memory)
 settings.SQLALCHEMY_DATABASE_URI = "sqlite:///./test_docs.db"
@@ -63,13 +64,13 @@ auth_headers = {}
 
 
 @pytest.fixture(autouse=True)
-def mock_current_user():
+def mock_current_user(setup_db_and_storage):
     # Setup a dummy employee user and get authentication credentials
     db = TestingSessionLocal()
     user = User(
         full_name="Employee User",
         email="employee@example.com",
-        hashed_password="hashedpassword123",
+        hashed_password=get_password_hash("securepassword123"),
         role=UserRole.EMPLOYEE,
         is_active=True
     )
