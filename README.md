@@ -107,6 +107,35 @@ When parsing commences, the pipeline reads file properties without invoking heav
 
 ---
 
+## Invoice Extraction Engine (Sprint 5)
+
+Sprint 5 establishes a modular parsing framework designed to extract raw text and files into structured database records.
+
+### Parser Architecture
+```
+parsers/
+├── base_parser.py       # Abstract Base Class declaring parse()
+├── invoice_parser.py    # Concrete Invoice Parser implementing parse()
+└── parser_factory.py    # Factory pattern resolving parser based on DocumentType
+```
+
+This modular structure decouples the parsing implementation from the FastAPI service layer, enabling future parsers (e.g. Expense Reports, Vendor Statements) to plug in without modifying existing codebase.
+
+### Invoice Entity Relationships
+A document categorized as an `Invoice` gets processed and mapped to the SQL database:
+```
+  [Document] 1 ──── 1 [Invoice] 1 ──── * [InvoiceItem]
+                         │
+                         * ──── 1 [Vendor]
+```
+
+### Endpoints
+- **Extract Invoice**: `POST /api/v1/invoices/{document_id}/extract`
+- **Get Invoice Details**: `GET /api/v1/invoices/{invoice_id}`
+- **List Invoices**: `GET /api/v1/invoices`
+
+---
+
 ## Getting Started
 
 ### Prerequisites

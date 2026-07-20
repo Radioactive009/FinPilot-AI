@@ -8,10 +8,16 @@ class InvoiceParser(BaseParser):
         """
         Parses an invoice file and returns simulated extracted structure.
         """
-        filename = os.path.basename(file_path).lower()
+        content = b""
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, "rb") as f:
+                    content = f.read().lower()
+            except Exception:
+                pass
 
-        # Simulate missing required fields case
-        if "missing_fields" in filename:
+        # Simulate missing required fields case based on file content bytes
+        if b"missing_fields" in content or b"missing fields" in content:
             return {
                 "invoice_number": None,
                 "vendor_name": "Acme Corp",
@@ -31,8 +37,8 @@ class InvoiceParser(BaseParser):
                 ]
             }
 
-        # Simulate duplicate check case
-        if "duplicate" in filename:
+        # Simulate duplicate check case based on file content bytes
+        if b"duplicate" in content:
             return {
                 "invoice_number": "INV-DUP-999",
                 "vendor_name": "Duplicate Vendor LLC",
