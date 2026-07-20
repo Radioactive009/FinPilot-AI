@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, Field
 from app.models.user import UserRole
 
 
@@ -13,7 +13,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    password: str
+    password: str = Field(..., min_length=8, description="Password must be at least 8 characters long")
 
 
 class UserUpdate(BaseModel):
