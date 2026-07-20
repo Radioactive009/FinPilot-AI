@@ -27,6 +27,25 @@ finance-ai-copilot/
 
 ---
 
+## Authentication Flow (Sprint 2)
+
+FinanceAI Copilot implements a production-ready, secure **JWT-based authentication** system.
+
+### Components
+1. **User Schema Validation**: Built with Pydantic v2. Performs format checks on email and length checks (minimum 8 characters) on user passwords.
+2. **Password Security**: Passwords are hashed using `passlib` with `bcrypt` before being committed to the database. Plaintext or hashed passwords are never returned in responses or logged.
+3. **Token Verification**: Tokens are encoded and decoded using `python-jose` with the `HS256` algorithm.
+4. **Dependencies**:
+   - `get_current_user`: Resolves and decodes authorization headers, ensuring JWT authenticity.
+   - `get_current_active_user`: Ensures the requesting account is active.
+
+### Endpoints
+- **Register Account**: `POST /api/v1/auth/register` (Returns newly created user payload)
+- **Login Session**: `POST /api/v1/auth/login` (Standard OAuth2 password flow; returns bearer token)
+- **Profile Check**: `GET /api/v1/auth/me` (Returns verified current user metadata)
+
+---
+
 ## Getting Started
 
 ### Prerequisites
