@@ -1,11 +1,42 @@
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock
+import importlib.metadata
 
-# Mock structlog module to allow running tests in environments without it
+# Mock email-validator distribution version check done by Pydantic
+original_version = importlib.metadata.version
+def mock_version(distribution_name):
+    if distribution_name == "email-validator":
+        return "2.0.0"
+    return original_version(distribution_name)
+importlib.metadata.version = mock_version
+
+# Mock external dependencies that are not in the local global python environment
 structlog_mock = MagicMock()
 structlog_mock.get_logger.return_value = MagicMock()
 sys.modules["structlog"] = structlog_mock
+
+# Mock email-validator module
+email_validator_mock = MagicMock()
+sys.modules["email_validator"] = email_validator_mock
+
+# Mock jose
+jose_mock = MagicMock()
+jwt_mock = MagicMock()
+jwt_mock.encode.return_value = "mocked_jwt_token"
+jwt_mock.decode.return_value = {"sub": "test@example.com"}
+jose_mock.jwt = jwt_mock
+sys.modules["jose"] = jose_mock
+
+# Mock passlib
+passlib_mock = MagicMock()
+pwd_context_mock = MagicMock()
+pwd_context_mock.hash.return_value = "mocked_hashed_password"
+pwd_context_mock.verify.return_value = True
+passlib_mock.context = MagicMock()
+passlib_mock.context.CryptContext.return_value = pwd_context_mock
+sys.modules["passlib"] = passlib_mock
+sys.modules["passlib.context"] = passlib_mock.context
 
 # Add backend directory to path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "backend"))
@@ -19,7 +50,6 @@ from app.main import app
 from app.database.session import Base, get_db
 
 # Create test database (SQLite in-memory)
-# We override settings database URI inside config directly or use sqlite
 from app.core.config import settings
 settings.SQLALCHEMY_DATABASE_URI = "sqlite:///./test.db"
 
@@ -116,11 +146,25 @@ def test_login():
 
 
 def test_invalid_login():
-    response = client.post(
+    # Force mock verification to fail for this check
+    pwd_context_mock.verify.return_value = False
+    try:
+        response = client.post(
+            "/api/v1/auth/login",
+            data={
+                "username": "test@example.com",
+                "password": "wrongpassword"
+            }
+        )
+        assert response.status_code == 401
+    finally:
+        pwd_context_mock.verify.return_value = True
+        
+    response2 = client.post(
         "/api/v1/auth/login",
         data={
             "username": "nonexistent@example.com",
             "password": "wrongpassword"
         }
     )
-    assert response.status_code == 401
+    assert response2.status_code == 401
