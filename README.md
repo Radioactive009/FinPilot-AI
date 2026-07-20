@@ -77,6 +77,36 @@ To prevent overrides, filenames are uniquely named using a UUID, while retaining
 
 ---
 
+## Document Processing Pipeline (Sprint 4)
+
+Sprint 4 introduces structured processing state tracking, failure handling, and physical metadata parsing.
+
+### Processing Lifecycle & States
+
+```mermaid
+stateDiagram-v2
+    [*] --> UPLOADED : Document uploaded successfully
+    UPLOADED --> QUEUED : Process request received
+    QUEUED --> PROCESSING : Parser worker starts execution
+    PROCESSING --> PARSED : Metadata extracted successfully
+    PROCESSING --> FAILED : Execution failure or missing file
+```
+
+### Metadata Extracted
+When parsing commences, the pipeline reads file properties without invoking heavy OCR or AI loops:
+- `filename`: Base name of the stored target file.
+- `extension`: Lowercased file extension format.
+- `mime_type`: Resolved file payload type.
+- `file_size`: Calculated byte size.
+- `creation_time`: Host file creation timestamp.
+- `last_modified_time`: Host modification timestamp.
+
+### Pipeline Endpoints
+- **Trigger Pipeline**: `POST /api/v1/documents/{document_id}/process`
+- **Check Pipeline Status**: `GET /api/v1/documents/{document_id}/status`
+
+---
+
 ## Getting Started
 
 ### Prerequisites

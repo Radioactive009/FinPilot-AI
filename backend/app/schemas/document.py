@@ -27,11 +27,20 @@ class DocumentUpdate(BaseModel):
     file_size: Optional[int] = None
     storage_path: Optional[str] = None
     upload_status: Optional[str] = None
+    processing_status: Optional[str] = None
+    processing_error: Optional[str] = None
 
 
 class DocumentResponse(DocumentBase):
     id: uuid.UUID
     user_id: uuid.UUID
     created_at: datetime
+    
+    # Processing pipeline fields
+    processing_status: str
+    processing_started_at: Optional[datetime] = None
+    processing_completed_at: Optional[datetime] = None
+    processing_error: Optional[str] = None
+    processed_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)

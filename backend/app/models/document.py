@@ -1,6 +1,7 @@
 import enum
 import uuid
 from datetime import datetime
+from typing import Optional
 from sqlalchemy import String, Integer, DateTime, Enum, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
@@ -37,6 +38,13 @@ class Document(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+
+    # Processing state tracking (Sprint 4)
+    processing_status: Mapped[str] = mapped_column(String(50), default="UPLOADED", nullable=False)  # UPLOADED, QUEUED, PROCESSING, PARSED, FAILED
+    processing_started_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    processing_completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    processing_error: Mapped[Optional[str]] = mapped_column(String(1024), nullable=True)
+    processed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
     uploaded_by: Mapped["User"] = relationship("User", back_populates="documents")

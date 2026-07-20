@@ -52,7 +52,7 @@ class DocumentService:
         # 2. Validation: Maximum file size
         if file_size > MAX_FILE_SIZE:
             raise HTTPException(
-                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
                 detail="File size exceeds the 20 MB limit",
             )
 
