@@ -136,6 +136,39 @@ A document categorized as an `Invoice` gets processed and mapped to the SQL data
 
 ---
 
+## OCR & Text Extraction Framework (Sprint 6)
+
+Sprint 6 implements a robust text extraction layer combining digital text crawlers and optical character recognition engines.
+
+### OCR Architecture
+```
+ocr/
+├── base_extractor.py       # Abstract Base Class declaring extract_text()
+├── pdf_text_extractor.py   # Uses PyMuPDF (fitz) for searchable PDFs
+├── paddle_ocr_extractor.py # Uses PaddleOCR for scanned PDFs and images
+├── image_preprocessor.py   # Stubs for image rotations/contrast enhancement
+└── extractor_factory.py    # Routes documents automatically based on format and searchability
+```
+
+### Extraction Strategy
+```mermaid
+graph TD
+    A[Document Uploaded] --> B{Is PDF?}
+    B -- Yes --> C{Is Searchable PDF?}
+    C -- Yes --> D[PDFTextExtractor - PyMuPDF]
+    C -- No --> E[PaddleOCRExtractor - PaddleOCR]
+    B -- No [Image] --> E
+    D --> F[Unified DocumentText Schema]
+    E --> F
+    F --> G[Save storage/parsed/{document_id}.json]
+```
+
+### API Endpoints
+- **Extract Text**: `POST /api/v1/documents/{document_id}/extract-text`
+- **Get Parsed Text**: `GET /api/v1/documents/{document_id}/parsed-text`
+
+---
+
 ## Getting Started
 
 ### Prerequisites

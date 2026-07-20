@@ -9,8 +9,10 @@ from app.models.user import User, UserRole
 from app.models.document import DocumentType
 from app.schemas.document import DocumentResponse
 from app.schemas.processing import DocumentProcessResponse, DocumentStatusResponse
+from app.schemas.ocr import DocumentTextResponse
 from app.services.document_service import DocumentService
 from app.services.processing_service import DocumentProcessingService
+from app.services.ocr_service import OCRExtractionService
 
 router = APIRouter()
 
@@ -105,3 +107,29 @@ def get_document_status(
         "processing_completed_at": doc.processing_completed_at,
         "processed_at": doc.processed_at,
     }
+
+
+@router.post("/{document_id}/extract-text", response_model=DocumentTextResponse)
+def extract_text(
+    document_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    service = OCRExtractionService(db)
+    is_admin = current_user.role == UserRole.ADMIN
+    return service.extract_text(
+        document_id=document_id, user_id=current_user.id, is_admin=is_admin
+    )
+
+
+@router.get("/{document_id}/parsed-text")
+def get_parsed_text(
+    document_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    service = OCRExtractionService(db)
+    is_admin = current_user.role == UserRole.ADMIN
+    return service.get_parsed_text(
+        document_id=document_id, user_id=current_user.id, is_admin=is_admin
+    )
