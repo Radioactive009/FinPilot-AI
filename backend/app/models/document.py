@@ -1,7 +1,7 @@
 import enum
 import uuid
 from datetime import datetime
-from sqlalchemy import String, DateTime, Enum, ForeignKey, func
+from sqlalchemy import String, Integer, DateTime, Enum, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -25,15 +25,16 @@ class Document(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
-    file_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    original_file_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    file_type: Mapped[str] = mapped_column(String(50), nullable=False)  # e.g., pdf, png
+    original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
+    stored_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     document_type: Mapped[DocumentType] = mapped_column(
         Enum(DocumentType), nullable=False
     )
-    file_path: Mapped[str] = mapped_column(String(512), nullable=False)
-    upload_status: Mapped[str] = mapped_column(String(50), default="pending", nullable=False)  # pending, success, failed
-    uploaded_at: Mapped[datetime] = mapped_column(
+    mime_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    file_size: Mapped[int] = mapped_column(Integer, nullable=False)  # in bytes
+    storage_path: Mapped[str] = mapped_column(String(512), nullable=False)
+    upload_status: Mapped[str] = mapped_column(String(50), default="Uploaded", nullable=False)  # Uploaded, Failed
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 

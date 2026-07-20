@@ -6,12 +6,13 @@ from app.models.document import DocumentType
 
 
 class DocumentBase(BaseModel):
-    file_name: str
-    original_file_name: str
-    file_type: str
+    original_filename: str
+    stored_filename: str
     document_type: DocumentType
-    file_path: str
-    upload_status: str = "pending"
+    mime_type: str
+    file_size: int
+    storage_path: str
+    upload_status: str = "Uploaded"
 
 
 class DocumentCreate(DocumentBase):
@@ -19,17 +20,18 @@ class DocumentCreate(DocumentBase):
 
 
 class DocumentUpdate(BaseModel):
-    file_name: Optional[str] = None
-    original_file_name: Optional[str] = None
-    file_type: Optional[str] = None
+    original_filename: Optional[str] = None
+    stored_filename: Optional[str] = None
     document_type: Optional[DocumentType] = None
-    file_path: Optional[str] = None
+    mime_type: Optional[str] = None
+    file_size: Optional[int] = None
+    storage_path: Optional[str] = None
     upload_status: Optional[str] = None
 
 
 class DocumentResponse(DocumentBase):
     id: uuid.UUID
     user_id: uuid.UUID
-    uploaded_at: datetime
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
