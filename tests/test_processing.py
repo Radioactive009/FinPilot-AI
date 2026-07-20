@@ -36,18 +36,6 @@ settings.UPLOADS_DIR = TEST_STORAGE_DIR / "uploads"
 settings.LOGS_DIR = TEST_STORAGE_DIR / "logs"
 
 
-@pytest.fixture(scope="function", autouse=True)
-def setup_db_and_storage():
-    Base.metadata.create_all(bind=engine)
-    settings.UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
-    yield
-    Base.metadata.drop_all(bind=engine)
-    # Cleanup test storage files
-    if TEST_STORAGE_DIR.exists():
-        import shutil
-        shutil.rmtree(TEST_STORAGE_DIR)
-
-
 def override_get_db():
     db = TestingSessionLocal()
     try:
@@ -56,7 +44,20 @@ def override_get_db():
         db.close()
 
 
-app.dependency_overrides[get_db] = override_get_db
+@pytest.fixture(scope="function", autouse=True)
+def setup_db_and_storage():
+    app.dependency_overrides[get_db] = override_get_db
+    Base.metadata.create_all(bind=engine)
+    settings.UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+    yield
+    Base.metadata.drop_all(bind=engine)
+    app.dependency_overrides.clear()
+    # Cleanup test storage files
+    if TEST_STORAGE_DIR.exists():
+        import shutil
+        shutil.rmtree(TEST_STORAGE_DIR)
+
+
 client = TestClient(app)
 
 auth_headers = {}
