@@ -46,6 +46,37 @@ FinanceAI Copilot implements a production-ready, secure **JWT-based authenticati
 
 ---
 
+## Document Upload & Management Flow (Sprint 3)
+
+The document management module provides secure file uploads, folder segmenting, size guards, and strict ownership boundaries.
+
+### Storage Layout Segmentation
+When a document is uploaded, it is automatically sorted into a type-specific subfolder in `storage/uploads/`:
+- **Invoice** -> `storage/uploads/invoices/`
+- **Expense Report** -> `storage/uploads/expense_reports/`
+- **Audit Report** -> `storage/uploads/audit_reports/`
+- **Policy** -> `storage/uploads/policies/`
+- **Vendor Statement** -> `storage/uploads/vendor_statements/`
+
+To prevent overrides, filenames are uniquely named using a UUID, while retaining their original names and formats in the PostgreSQL database.
+
+### File Format & Size Limits
+- **Maximum File Size**: 20 MB (Empty files are rejected).
+- **Supported Formats**: `PDF`, `PNG`, `JPG`, `JPEG`, `CSV`, `XLSX`.
+- **MIME Type Checks**: Strict whitelist validation on inbound multipart requests.
+
+### Role & Ownership Controls
+- **Standard Users**: Can upload documents and view or delete *only* their own uploaded files.
+- **Admin Users**: Have system-wide permission to list, fetch details for, or delete *any* document.
+
+### Endpoints
+- **Upload Document**: `POST /api/v1/documents/upload` (Form parameters: `file` & `document_type`)
+- **List Documents**: `GET /api/v1/documents`
+- **Get Document Details**: `GET /api/v1/documents/{document_id}`
+- **Delete Document**: `DELETE /api/v1/documents/{document_id}`
+
+---
+
 ## Getting Started
 
 ### Prerequisites
