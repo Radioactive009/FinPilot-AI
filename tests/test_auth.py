@@ -1,19 +1,29 @@
 import sys
 from pathlib import Path
+from unittest.mock import MagicMock
+
+# Mock structlog module to allow running tests in environments without it
+structlog_mock = MagicMock()
+structlog_mock.get_logger.return_value = MagicMock()
+sys.modules["structlog"] = structlog_mock
+
+# Add backend directory to path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "backend"))
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-# Add backend directory to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "backend"))
-
 from app.main import app
 from app.database.session import Base, get_db
 
 # Create test database (SQLite in-memory)
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+# We override settings database URI inside config directly or use sqlite
+from app.core.config import settings
+settings.SQLALCHEMY_DATABASE_URI = "sqlite:///./test.db"
+
+engine = create_engine(settings.SQLALCHEMY_DATABASE_URI, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
